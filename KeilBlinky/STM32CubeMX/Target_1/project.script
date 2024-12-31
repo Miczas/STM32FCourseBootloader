@@ -1,0 +1,5 @@
+load STM32F407IGTx
+project name STM32CubeMX
+project toolchain "MDK-ARM V5"
+project path "C:\workspace\KeilBlinky\STM32CubeMX\Target_1"
+SetCopyLibrary "copy only"
