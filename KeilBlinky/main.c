@@ -10,6 +10,7 @@ void delay(void)
 int main (void)
 {
 	LED_Initialize();
+	
 	while(1)
 	{
 		LED_On(0);
@@ -17,5 +18,6 @@ int main (void)
 		LED_Off(0);
 		delay();
 	}
+	
 	return 0;
 }

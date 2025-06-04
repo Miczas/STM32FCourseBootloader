@@ -68,6 +68,8 @@ static void MX_USART3_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
+	
+	char data_tx[] = "Hello from Bootloader\r\n";
 int main(void)
 {
 
@@ -105,7 +107,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+		HAL_UART_Transmit(&huart2, (uint8_t*)data_tx, sizeof(data_tx), HAL_MAX_DELAY);
+		uint32_t current_tick = HAL_GetTick();
+		while(HAL_GetTick() < current_tick + 500) {};
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
