@@ -52,6 +52,10 @@ extern "C" {
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
+/* Bootloader function prototypes */
+void bootloader_uart_read_data();
+void bootloader_jump_to_user_app();
+
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
@@ -71,6 +75,7 @@ void Error_Handler(void);
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define FLASH_SECTOR2_BASE_ADDRESS 0x8008000U
 
 /* USER CODE BEGIN Private defines */
 

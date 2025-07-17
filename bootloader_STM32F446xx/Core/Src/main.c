@@ -56,6 +56,8 @@ UART_HandleTypeDef huart3;
 #define C_UART &huart3
 
 
+
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -113,7 +115,18 @@ int main(void)
 	MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-
+	
+	if ( HAL_GPIO_ReadPin(B1_GPIO_Port,B1_Pin) == GPIO_PIN_RESET )
+	{
+		printmsg("BL_DEBUG_MESSAGE:Button is pressed. Going to BL mode\r\n");
+		bootloader_uart_read_data();
+	}
+	else
+	{
+		printmsg("BL_DEBUG_MESSAGE:Button is not pressed. Going to user app\r\n");
+		bootloader_jump_to_user_app();
+	}
+	
   /* USER CODE END 2 */
 
 
@@ -122,15 +135,40 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-		HAL_UART_Transmit(&huart2, (uint8_t*)data_tx2, sizeof(data_tx2), HAL_MAX_DELAY);
-		HAL_UART_Transmit(&huart3, (uint8_t*)data_tx3, sizeof(data_tx3), HAL_MAX_DELAY);
 		uint32_t current_tick = HAL_GetTick();
+
 		while(HAL_GetTick() < current_tick + 500) {};
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
 
+void bootloader_uart_read_data()
+{
+}
+/*
+This function implements handling the control over to the user application
+*/
+void bootloader_jump_to_user_app()
+{
+	void (*app_reset_handler)(void);
+	
+	printmsg("BL_DEBUG_MSG:bootloader_jump_to_user_app");
+	
+	//1 Configure the MSP by reading the balue from the base address of the sector 2
+	uint32_t msp_value = *(volatile uint32_t *) FLASH_SECTOR2_BASE_ADDRESS;
+	printmsg("BL_DEBUG_MSG:MSP value :%#x\n",msp_value);
+	
+	//set main stack pointer
+	__set_MSP(msp_value);
+	
+	uint32_t resethandler_address = *(volatile uint32_t *) (FLASH_SECTOR2_BASE_ADDRESS + 4);
+	app_reset_handler = (void*) resethandler_address; 
+	
+	printmsg("BL_DEBUG_MSG:app reset handler addr:%#x\n",app_reset_handler);
+	
+	app_reset_handler();
+}
 
 void printmsg(char *format,...)
 {
@@ -139,8 +177,8 @@ void printmsg(char *format,...)
 		
 	va_list args;
 	va_start(args, format);
-	vsprintf(str, format, args);
-	HAL_UART_Transmit(D_UART, (uint8_t *)strcasecmp, strlen(str), HAL_MAX_DELAY);
+	vsnprintf(str, sizeof(str), format, args);
+	HAL_UART_Transmit(D_UART, (uint8_t *)str, strlen(str), HAL_MAX_DELAY);
 	va_end(args);
 #endif
 }
